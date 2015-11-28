@@ -1,22 +1,28 @@
 var superagent = require('superagent')
 var expect = require('expect.js')
+var util = require('./js/util.js');
 var token;
 
 describe('rest auth api', function(done){
   var username;
   var password;
+  var permissions;
 
-  it('insert a new username and password (access credentials)', function(done){
+  it('insert a new username and password (access credentials) with a \'create-an-object\' permission', function(done){
     superagent.post('http://localhost:3000/signup')
       .send({ 
         username: 'admin',
-        password: 'admin_password'
+        password: 'admin_password',
+        // list of actions that can be done by this user
+        permissions: [ 'create-an-object' ]
       })
       .end(function(e, res){
+        //console.log(res.body[0]);
         expect(e).to.eql(null);
         expect(res.body[0]._id.length).to.eql(24);
         username = res.body[0].username;
         password = res.body[0].password;
+        permissions = res.body[0].permissions;
         done();
       })
   });
@@ -34,7 +40,7 @@ describe('rest auth api', function(done){
         token = res.body.token;
         done();
       })
-  })
+  });
 
   it('authenticate using an invalid username', function(done){
     superagent.post('http://localhost:3000/authenticate')
@@ -48,7 +54,7 @@ describe('rest auth api', function(done){
         expect(res.body.success).to.eql(false);
         done();
       })
-  })
+  });
 
   it('authenticate using an invalid password', function(done){
     superagent.post('http://localhost:3000/authenticate')
@@ -62,11 +68,11 @@ describe('rest auth api', function(done){
         expect(res.body.success).to.eql(false);
         done();
       })
-  })
+  });
 
 });
 
-describe('express rest api server', function(){
+describe('express rest api server available to all user regardless the user\'s permissions', function(){
   var id
 
   it('posts an object', function(done){
@@ -144,6 +150,7 @@ describe('express rest api server', function(){
         done()
       })
   })
+
   it('removes an object', function(done){
     superagent.del('http://localhost:3000/api/v1/collections/test/'+id+ '?token=' + token)
       .end(function(e, res){
@@ -154,6 +161,7 @@ describe('express rest api server', function(){
         done()
       })
   })
+
   it('checks an removed object', function(done){
     superagent.get('http://localhost:3000/api/v1/collections/test?token=' + token)
       .end(function(e, res){
@@ -163,4 +171,12 @@ describe('express rest api server', function(){
         done()
       })
   })
+
+})
+
+describe('Testing function check_permissions()', function(){
+  it('checks if user have the require permissions', function(){
+    expect(check_permissions(['a'],['a','b'], function (){ return true; }, function() { return false; })).to.equal(true);
+  });
+
 })

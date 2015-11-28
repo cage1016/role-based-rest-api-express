@@ -3,6 +3,7 @@ var express = require('express'),
   bodyParser = require('body-parser')
   logger = require('morgan')
   jwt = require('jsonwebtoken')
+  util = require('./js/util.js')
 
 var app = express()
 app.use(bodyParser.json())
@@ -38,8 +39,6 @@ app.post('/authenticate', function(req, res){
         message: 'User not found.'
       }); 
     } else {
-      console.log(req.body.username);
-      console.log(req.body.password);
       var token = jwt.sign(result, 'secret_goes_here', {
         expiresIn: "12 days"
       });
@@ -59,7 +58,7 @@ app.param('collectionName', function(req, res, next, collectionName){
 
 // Verify if user's token for routes /api/v1/* is valid.
 app.use('/api/v1/', function(req, res, next){
-  console.log('ass' + req);
+
   var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
   // if found
@@ -71,6 +70,9 @@ app.use('/api/v1/', function(req, res, next){
           message: 'Failed to authenticate token.' 
         })
       } else {
+        // Passing user's information to the next middleaware
+        // Among such information there is the permissions that such
+        // user can access. 
         req.decoded = decoded;
         next();
       }
@@ -117,6 +119,8 @@ app.delete('/api/v1/collections/:collectionName/:id', function(req, res, next) {
     res.send((result === 1)?{msg: 'success'} : {msg: 'error'})
   })
 })
+
+console.log(typeof util.check_permissions);
 
 app.listen(3000, function(){
   console.log('Express server listening on port 3000')

@@ -175,8 +175,76 @@ describe('express rest api server available to all user regardless the user\'s p
 })
 
 describe('Testing function check_permissions()', function(){
-  it('checks if user have the require permissions', function(){
-    expect(check_permissions(['a'],['a','b'], function (){ return true; }, function() { return false; })).to.equal(true);
+  it('user have the require permissions', function(){
+    expect(util.check_permissions(
+      ['a','b'], // user's permissions
+      ['a','b'], // permissions required
+      function (){ return true; }, 
+      function (){ return false;} 
+    )).to.eql(true);
+  });
+
+  it('user don\'t have the required permissions', function(){
+    expect(util.check_permissions(
+      ['a'], // user's permissions
+      ['b','c'], // permisions required
+      function (){ return true; },
+      function (){ return false; }
+    )).to.eql(false);
+  }); 
+
+  it('user have more permissions than amount required', function(){
+    expect(util.check_permissions(
+      ['a','b','c'], // user's permissions
+      ['a','b'], // user's permssions
+      function (){ return true; },
+      function (){ return false; }
+    )).to.eql(true);
+  });
+
+   it('user have no permissions', function(){ 
+     expect(util.check_permissions(
+       [], // user's permissions
+       ['a','b'], // user's permssions
+       function (){ return true; },
+       function (){ return false; }
+     )).to.eql(false);
+   });
+
+  it('user\'s permissions is undefined', function(){
+    expect(util.check_permissions(
+      undefined, // user's permissions
+      ['a','b','c'], // user's permssions
+      function (){ return true; },
+      function (){ return false; }
+     )).to.eql(false);
+   });
+
+  it('no permissions is required', function(){
+    expect(util.check_permissions(
+      ['a','b','c'], // user's permissions                          
+      undefined, // user's permssions
+      function (){ return true; },
+      function (){ return false; }
+    )).to.eql(true);
+  });
+
+  it('have the required permissions but no callback function defined', function(){
+    expect(util.check_permissions(
+      ['a','b'], // user's permissions
+      ['a','b'], // user's permssions
+      undefined,
+      function (){ return false; }
+    )).to.eql(true);
+  });
+
+  it('don\'t have the required permissions and no callback function defined', function(){
+    expect(util.check_permissions(
+      ['a'], // user's permissions
+      ['a','b'], // user's permssions
+      function (){ return true; },
+      undefined
+    )).to.eql(false);
   });
 
 })

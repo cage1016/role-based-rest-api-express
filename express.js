@@ -120,6 +120,37 @@ app.delete('/api/v1/collections/:collectionName/:id', function(req, res, next) {
   })
 })
 
+// Only user with the "create-an-object" permissions should be able to access this page
+app.get('/api/v1/create_an_object', function(req, res, next) {
+  if(util.check_permissions(req.decoded.permissions, ['create-an-object'])){
+    res.json({ 
+      success: true, 
+      msg: 'Congradulation! You have an the "create-an-object" permission among your permissions'
+    });
+  } else {
+    res.json({
+      success: false,
+      msg: 'Access not allowed'
+    });
+  }
+})
+
+
+// Only user with the "create-an-object" permissions should be able to access this page
+app.get('/api/v1/create_a_non_object', function(req, res, next) {
+  if(util.check_permissions(req.decoded.permissions, ['create-a-non-object'])){
+    res.json({ 
+      success: true, 
+      msg: 'Congradulation! You have an the "create-an-object" permission among your permissions'
+    });
+  } else {
+    res.json({ 
+      success: false,
+      msg: 'Access not allowed!'
+    });
+  }
+})
+
 console.log(typeof util.check_permissions);
 
 app.listen(3000, function(){

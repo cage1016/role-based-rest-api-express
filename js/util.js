@@ -7,6 +7,8 @@ module.exports = {
   check_permissions : function(user_permissions, required_permissions, success, err){
     // Assumption: user_permissions have to contain all the required_permissions
     // number of permissions_required
+    
+    // set default values to the parameters
     if(user_permissions === undefined) { user_permissions = [] }
     if(required_permissions === undefined) { required_permissions = [] }
     if(success === undefined) { success = function () { return true; }; }

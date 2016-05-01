@@ -22,5 +22,5 @@ $ mocha express.test.js
 Or, if you don't have mocha installed globally:
 
 ```
-$ ./node_modules/mocha/bin/mocha express.test.js
+$ ./node_modules/mocha/bin/mocha test/express.test.js
 ```
